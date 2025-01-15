@@ -1,0 +1,36 @@
+# .editorconfig is awesome: https://EditorConfig.org
+
+# Specify that this is the root EditorConfig file
+root = true
+
+# Apply settings to all files
+[*]
+# 4 space indentation
+indent_style = space
+indent_size = 4
+tab_width = 4
+
+# Unix-style line endings
+end_of_line = lf
+
+# UTF-8 character encoding
+charset = utf-8
+
+# Remove any trailing whitespace
+trim_trailing_whitespace = true
+
+# Ensure files end with a newline
+insert_final_newline = true
+
+# Settings for C source files
+[*.c]
+# Optional: Add any C-specific settings here
+# For example, align parameters or other formatting preferences
+
+# Settings for C header files
+[*.h]
+# Optional: Add any header-specific settings here
+
+# Settings for Makefiles (which require tab indentation)
+[Makefile]
+indent_style = tab
