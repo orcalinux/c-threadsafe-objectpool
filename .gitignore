@@ -1,0 +1,18 @@
+# Build directories
+/build/
+/bin/
+/lib/
+
+# Compiler artifacts
+*.o
+*.d
+*.so
+*.a
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Miscellaneous
+*.log
