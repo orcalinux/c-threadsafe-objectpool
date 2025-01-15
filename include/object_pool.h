@@ -10,15 +10,14 @@ extern "C"
 {
 #endif
 
-    // Callback function type for iterating over acquired objects
-    typedef void (*object_callback)(void *object, void *user_data);
-
+    // Define the AcquiredNode structure internally
     typedef struct AcquiredNode
     {
         void *object;
         struct AcquiredNode *next;
     } AcquiredNode;
 
+    // Define the ObjectPool structure internally
     typedef struct ObjectPool
     {
         void **free_list;            // Array of pointers to free objects
@@ -30,6 +29,9 @@ extern "C"
         AcquiredNode *acquired_head; // Head of the acquired objects list
     } ObjectPool;
 
+    // Callback function type for iterating over acquired objects
+    typedef void (*object_callback)(void *object, void *user_data);
+
     /**
      * @brief Initialize the object pool with a dynamic memory block.
      *
@@ -38,7 +40,7 @@ extern "C"
      * @param object_size Size of each object in bytes.
      * @return true on success, false on failure.
      */
-    bool object_pool_init(ObjectPool *pool, size_t initial_size, size_t object_size);
+    bool object_pool_init(ObjectPool **pool, size_t initial_size, size_t object_size);
 
     /**
      * @brief Acquire an object from the pool.

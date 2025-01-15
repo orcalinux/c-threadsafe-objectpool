@@ -1,4 +1,3 @@
-// tests/test_employee_pool.c
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,17 +6,27 @@
 #include "object_pool.h"
 #include "cli_logger.h"
 
+// Define the Employee structure
 typedef struct Employee
 {
     int id;
     char name[50];
 } Employee;
 
+// Callback function to print employee details
+void print_employee(void *object, void *user_data)
+{
+    (void)user_data;
+
+    Employee *emp = (Employee *)object;
+    printf("Active Employee ID: %d, Name: %s\n", emp->id, emp->name);
+}
+
 int main()
 {
     srand(time(NULL)); // Seed for randomness
 
-    ObjectPool pool;
+    ObjectPool *pool = NULL;
     size_t initial_size = 7;
     size_t object_size = sizeof(Employee);
 
@@ -35,7 +44,7 @@ int main()
     // Acquire 7 Employees from the pool
     for (int i = 0; i < 7; i++)
     {
-        employees[i] = (Employee *)object_pool_acquire(&pool);
+        employees[i] = (Employee *)object_pool_acquire(pool);
         if (employees[i] == NULL)
         {
             log_warning("Failed to acquire Employee %d from the pool.", i + 1);
@@ -46,8 +55,8 @@ int main()
         log_info("Acquired Employee ID: %d, Name: %s", employees[i]->id, employees[i]->name);
     }
 
-    // Attempt to acquire the 8th Employee, which may trigger resizing
-    employees[7] = (Employee *)object_pool_acquire(&pool);
+    // Attempt to acquire the 8th Employee, which may trigger pool exhaustion
+    employees[7] = (Employee *)object_pool_acquire(pool);
     if (employees[7] != NULL)
     {
         employees[7]->id = 8;
@@ -58,6 +67,11 @@ int main()
     {
         log_warning("Failed to acquire the 8th Employee from the pool.");
     }
+
+    // Display all active Employees
+    printf("\n--- Active Employees ---\n");
+    object_pool_iterate_acquired(pool, print_employee, NULL);
+    printf("------------------------\n\n");
 
     // Randomly release and acquire Employees
     for (int i = 0; i < 10; i++)
@@ -78,7 +92,7 @@ int main()
             }
             if (release_index != -1)
             {
-                object_pool_release(&pool, employees[release_index]);
+                object_pool_release(pool, employees[release_index]);
                 log_info("Released Employee ID: %d, Name: %s", employees[release_index]->id, employees[release_index]->name);
                 employees[release_index] = NULL;
             }
@@ -101,7 +115,7 @@ int main()
             }
             if (acquire_index != -1)
             {
-                employees[acquire_index] = (Employee *)object_pool_acquire(&pool);
+                employees[acquire_index] = (Employee *)object_pool_acquire(pool);
                 if (employees[acquire_index] != NULL)
                 {
                     employees[acquire_index]->id = 100 + acquire_index;
@@ -120,19 +134,24 @@ int main()
         }
     }
 
+    // Display all active Employees after random operations
+    printf("\n--- Active Employees After Random Operations ---\n");
+    object_pool_iterate_acquired(pool, print_employee, NULL);
+    printf("--------------------------------------------------\n\n");
+
     // Cleanup: Release any remaining Employees
     for (int i = 0; i < 8; i++)
     {
         if (employees[i] != NULL)
         {
-            object_pool_release(&pool, employees[i]);
+            object_pool_release(pool, employees[i]);
             log_info("Released Employee ID: %d, Name: %s", employees[i]->id, employees[i]->name);
             employees[i] = NULL;
         }
     }
 
     // Destroy the object pool
-    object_pool_destroy(&pool);
+    object_pool_destroy(pool);
     log_info("Employee object pool destroyed successfully.");
 
     printf("[INFO]: All Employee object pool tests passed successfully.\n");
