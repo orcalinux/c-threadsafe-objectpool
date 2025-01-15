@@ -3,23 +3,6 @@
 #include <string.h>
 #include "cli_logger.h"
 
-// Helper function to allocate memory and handle errors
-static void *allocate_memory(size_t size, const char *error_msg, ObjectPool *pool, bool free_pool)
-{
-    void *ptr = malloc(size);
-    if (!ptr)
-    {
-        log_error(error_msg);
-        if (free_pool)
-        {
-            free(pool->memory_block);
-            free(pool->free_list);
-            free(pool);
-        }
-    }
-    return ptr;
-}
-
 // Initializes the object pool
 bool object_pool_init(ObjectPool **pool_ptr, size_t initial_size, size_t object_size)
 {
@@ -36,17 +19,20 @@ bool object_pool_init(ObjectPool **pool_ptr, size_t initial_size, size_t object_
         return false;
     }
 
-    pool->memory_block = allocate_memory(initial_size * object_size, "Failed to allocate memory for object pool.", pool, false);
+    pool->memory_block = malloc(initial_size * object_size);
     if (!pool->memory_block)
     {
+        log_error("Failed to allocate memory for object pool.");
         free(pool);
         return false;
     }
 
-    pool->free_list = allocate_memory(initial_size * sizeof(void *), "Failed to allocate memory for free list.", pool, true);
+    pool->free_list = malloc(initial_size * sizeof(void *));
     if (!pool->free_list)
     {
-        // allocate_memory handles freeing pool->memory_block and pool
+        log_error("Failed to allocate memory for free list.");
+        free(pool->memory_block);
+        free(pool);
         return false;
     }
 
@@ -158,8 +144,8 @@ void object_pool_release(ObjectPool *pool, void *obj)
     pthread_mutex_lock(&pool->lock);
     if (!remove_acquired_node(pool, obj))
     {
-        pthread_mutex_unlock(&pool->lock);
         log_warning("Attempted to release an object not acquired from the pool.");
+        pthread_mutex_unlock(&pool->lock);
         return;
     }
 
