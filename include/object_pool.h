@@ -5,28 +5,39 @@
 #include <stdbool.h>
 #include <pthread.h>
 
+/**
+ * @file object_pool.h
+ * @brief Thread-safe Object Pool for efficient memory management.
+ */
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-    // Define the AcquiredNode structure internally
+    /**
+     * @struct AcquiredNode
+     * @brief Structure representing a node in the acquired objects list.
+     */
     typedef struct AcquiredNode
     {
         void *object;
         struct AcquiredNode *next;
     } AcquiredNode;
 
-    // Define the ObjectPool structure internally
+    /**
+     * @struct ObjectPool
+     * @brief Structure representing the Object Pool.
+     */
     typedef struct ObjectPool
     {
-        void **free_list;            // Array of pointers to free objects
-        size_t object_size;          // Size of each object
-        size_t pool_size;            // Current pool size
-        size_t available;            // Number of free objects
-        void *memory_block;          // Pointer to the memory block
-        pthread_mutex_t lock;        // Mutex for thread safety
-        AcquiredNode *acquired_head; // Head of the acquired objects list
+        void **free_list;            /**< Array of pointers to free objects */
+        size_t object_size;          /**< Size of each object */
+        size_t pool_size;            /**< Current pool size */
+        size_t available;            /**< Number of free objects */
+        void *memory_block;          /**< Pointer to the memory block */
+        pthread_mutex_t lock;        /**< Mutex for thread safety */
+        AcquiredNode *acquired_head; /**< Head of the acquired objects list */
     } ObjectPool;
 
     // Callback function type for iterating over acquired objects

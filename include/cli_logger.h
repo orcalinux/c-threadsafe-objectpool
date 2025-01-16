@@ -4,6 +4,11 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+/**
+ * @file cli_logger.h
+ * @brief Command-Line Interface (CLI) Logger for logging messages with different severity levels.
+ */
+
 // Define API_EXPORT based on platform and build settings
 #if defined(_WIN32) || defined(__CYGWIN__)
 #ifdef BUILDING_DLL
@@ -16,17 +21,17 @@
 #endif
 
 // ANSI color codes
-#define COLOR_RED "\x1b[31m"    // Red
-#define COLOR_YELLOW "\x1b[33m" // Yellow
-#define COLOR_GREEN "\x1b[32m"  // Green
-#define COLOR_RESET "\x1b[0m"   // Reset
+#define COLOR_RED "\x1b[31m"    /**< Red */
+#define COLOR_YELLOW "\x1b[33m" /**< Yellow */
+#define COLOR_GREEN "\x1b[32m"  /**< Green */
+#define COLOR_RESET "\x1b[0m"   /**< Reset */
 
 // Log levels
 typedef enum
 {
-    LOG_LEVEL_INFO,
-    LOG_LEVEL_WARNING,
-    LOG_LEVEL_ERROR
+    LOG_LEVEL_INFO,    /**< Informational messages */
+    LOG_LEVEL_WARNING, /**< Warning messages */
+    LOG_LEVEL_ERROR    /**< Error messages */
 } LogLevel;
 
 #ifdef __cplusplus

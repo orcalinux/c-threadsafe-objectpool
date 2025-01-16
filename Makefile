@@ -51,7 +51,7 @@ DEPFLAGS = -MMD -MP -MF $(DEPS_DIR)/$*.d
 # Targets
 # -------------------------------
 
-.PHONY: all build static shared tests tests_build run_test clean fclean re help
+.PHONY: all build static shared tests tests_build run_test install uninstall
 
 # Default target
 all: build $(LIB_STATIC) $(LIB_SHARED) tests_build
@@ -142,10 +142,44 @@ help:
 	@echo "  tests_build Build all test binaries"
 	@echo "  tests       Build and run all tests"
 	@echo "  run_test    Build and run a specific test (requires TEST=test_name)"
+	@echo "  install     Install the library and headers to system directories"
+	@echo "  uninstall   Uninstall the library and headers from system directories"
 	@echo "  clean       Remove build and binary artifacts"
 	@echo "  fclean      Remove all build artifacts and libraries"
 	@echo "  re          Rebuild the entire project from scratch"
 	@echo "  help        Display this help message"
+
+# -------------------------------
+# Installation Targets
+# -------------------------------
+
+install: all
+	@echo "Installing headers..."
+	@mkdir -p /usr/local/include/object_pool_library
+	@cp $(INCLUDE_DIR)/*.h /usr/local/include/object_pool_library/
+
+	@echo "Installing libraries..."
+	@cp $(LIB_DIR)/$(LIB_STATIC) /usr/local/lib/
+	@cp $(LIB_DIR)/$(LIB_SHARED) /usr/local/lib/
+
+	@echo "Creating symbolic links for shared library..."
+	@ln -sf /usr/local/lib/$(LIB_SHARED) /usr/local/lib/libobject_pool.so.1
+	@ln -sf /usr/local/lib/libobject_pool.so.1 /usr/local/lib/libobject_pool.so
+
+	@echo "Installing pkg-config file..."
+	@mkdir -p $(PKGCONFIG_DIR)
+	@cp object_pool.pc $(PKGCONFIG_DIR)/
+
+	@echo "Installation completed."
+
+uninstall:
+	@echo "Uninstalling libraries..."
+	@rm -f /usr/local/lib/$(LIB_STATIC) /usr/local/lib/$(LIB_SHARED) /usr/local/lib/libobject_pool.so /usr/local/lib/libobject_pool.so.1
+
+	@echo "Uninstalling headers..."
+	@rm -rf /usr/local/include/object_pool_library
+
+	@echo "Uninstallation completed."
 
 # -------------------------------
 # Dependencies
